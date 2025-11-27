@@ -1,0 +1,701 @@
+---
+title: "Wellington MPhil thesis demo"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+library(tidyverse)
+library(lme4)
+library(gtsummary)
+library(mgcv)
+library(itsadug)
+```
+
+Figure X: Normalised F1 and F2 of all vowel tokens, by phoneme
+
+```{r}
+allvowels <- read.csv('allvowels.csv')
+allvowels <- filter(allvowels, phoneme != "")
+
+allvowelsmeans <- allvowels %>%
+  group_by(phoneme) %>%
+  summarise(mean_F1Norm = mean(F1norm),
+            mean_F2Norm = mean(F2norm))
+
+allplot <- allvowels %>%
+  ggplot(aes(x = F2norm, y = F1norm, colour = phoneme, label = phoneme)) +
+  geom_point(alpha=0.3) +
+  stat_ellipse(level =  0.95) +
+  geom_label(data = allvowelsmeans, aes(x = mean_F2Norm, y = mean_F1Norm)) +
+  scale_x_reverse(name = "F2 frequency (Lobanov 2.0)", position = "top", limit=c(3, -3)) +
+  scale_y_reverse(name = "F1 frequency (Lobanov 2.0)", position = "right", limit=c(3, -2.5)) +
+  theme_bw(base_size=16)
+
+allplot
+```
+
+For all of the individual vowel results, the plots generated below were layered over the greyed-out plot of all tokens (at the same scale) to provide visual context.
+
+TRAP results (figure X)
+
+```{r}
+TRAPcompare <- ggplot(aes(x = F2norm, y = F1norm, colour = Group2), 
+                       data = filter(allvowels, phoneme == "TRAP", Group2 != "28-50")) +
+  geom_point(alpha=0.3) +
+  stat_ellipse(level =  0.95, linewidth = 1.5) +
+  scale_colour_manual(values=c("#2596be", "#e28743")) +
+  scale_x_reverse(name = "F2 frequency (Lobanov 2.0)", position = "top", limit=c(3, -3)) +
+  scale_y_reverse(name = "F1 frequency (Lobanov 2.0)", position = "right", limit=c(3, -2.5)) +
+  theme_bw(base_size=16)
+
+TRAPcompare
+
+trapF1_Age_Gender <- lmer(F1norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "TRAP"))
+
+summary(trapF1_Age_Gender)
+
+trapF1_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+
+trapF2_Age_Gender <- lmer(F2norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "TRAP"))
+summary(trapF2_Age_Gender)
+
+trapF2_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+DRESS results (figure X)
+
+```{r}
+DRESScompare <- ggplot(aes(x = F2norm, y = F1norm, colour = Group2), 
+                       data = filter(allvowels, phoneme == "DRESS", Group2 != "28-50")) +
+  geom_point(alpha=0.3) +
+  stat_ellipse(level =  0.95, linewidth = 1.5) +
+  scale_colour_manual(values=c("#2596be", "#e28743")) +
+  scale_x_reverse(name = "F2 frequency (Lobanov 2.0)", position = "top", limit=c(3, -3)) +
+  scale_y_reverse(name = "F1 frequency (Lobanov 2.0)", position = "right", limit=c(3, -2.5)) +
+  theme_bw(base_size=16)
+
+DRESScompare
+
+DRESSF1_Age_Gender <- lmer(F1norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "DRESS"))
+summary(DRESSF1_Age_Gender)
+
+DRESSF1_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+
+DRESSF2_Age_Gender <- lmer(F2norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "DRESS"))
+summary(DRESSF2_Age_Gender)
+
+DRESSF2_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+
+KIT results (figure X)
+
+```{r}
+KITcompare <- ggplot(aes(x = F2norm, y = F1norm, colour = Group2), 
+                       data = filter(allvowels, phoneme == "KIT", Group2 != "28-50")) +
+  geom_point(alpha=0.3) +
+  stat_ellipse(level =  0.95, linewidth = 1.5) +
+  scale_colour_manual(values=c("#2596be", "#e28743")) +
+  scale_x_reverse(name = "F2 frequency (Lobanov 2.0)", position = "top", limit=c(3, -3)) +
+  scale_y_reverse(name = "F1 frequency (Lobanov 2.0)", position = "right", limit=c(3, -2.5)) +
+  theme_bw(base_size=16)
+
+KITcompare
+
+KITF1_Age_Gender <- lmer(F1norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "KIT"))
+summary(KITF1_Age_Gender)
+
+KITF1_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+
+KITF2_Age_Gender <- lmer(F2norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "KIT"))
+summary(KITF2_Age_Gender)
+
+KITF2_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+START results (figure X)
+
+```{r}
+allvowels$Group2[allvowels$Group2 == '25-50'] <- '28-50'
+
+STARTcompare <- ggplot(aes(x = F2norm, y = F1norm, colour = Group2), 
+                       data = filter(allvowels, phoneme == "START", Group2 != "28-50")) +
+  geom_point(alpha=0.3) +
+  stat_ellipse(level =  0.95, linewidth = 1.5) +
+  scale_colour_manual(values=c("#2596be", "#e28743")) +
+  scale_x_reverse(name = "F2 frequency (Lobanov 2.0)", position = "top", limit=c(3, -3)) +
+  scale_y_reverse(name = "F1 frequency (Lobanov 2.0)", position = "right", limit=c(3, -2.5)) +
+  theme_bw(base_size=16)
+
+STARTcompare
+
+STARTF1_Age_Gender <- lmer(F1norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "START"))
+summary(STARTF1_Age_Gender)
+
+STARTF1_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+
+STARTF2_Age_Gender <- lmer(F2norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "START"))
+summary(STARTF2_Age_Gender)
+
+STARTF2_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+
+STRUT results (figure X)
+
+```{r}
+STRUTcompare <- ggplot(aes(x = F2norm, y = F1norm, colour = Group2), 
+                       data = filter(allvowels, phoneme == "STRUT", Group2 != "28-50")) +
+  geom_point(alpha=0.3) +
+  stat_ellipse(level =  0.95, linewidth = 1.5) +
+  scale_colour_manual(values=c("#2596be", "#e28743")) +
+  scale_x_reverse(name = "F2 frequency (Lobanov 2.0)", position = "top", limit=c(3, -3)) +
+  scale_y_reverse(name = "F1 frequency (Lobanov 2.0)", position = "right", limit=c(3, -2.5)) +
+  theme_bw(base_size=16)
+
+STRUTcompare
+
+STRUTF1_Age_Gender <- lmer(F1norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "STRUT"))
+summary(STRUTF1_Age_Gender)
+
+STRUTF1_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+
+STRUTF2_Age_Gender <- lmer(F2norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "STRUT"))
+
+summary(STRUTF2_Age_Gender)
+
+STRUTF2_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+
+NURSE results (figure X)
+
+```{r}
+NURSEcompare <- ggplot(aes(x = F2norm, y = F1norm, colour = Group2), 
+                       data = filter(allvowels, phoneme == "NURSE", Group2 != "28-50")) +
+  geom_point(alpha=0.3) +
+  stat_ellipse(level =  0.95, linewidth = 1.5) +
+  scale_colour_manual(values=c("#2596be", "#e28743")) +
+  scale_x_reverse(name = "F2 frequency (Lobanov 2.0)", position = "top", limit=c(3, -3)) +
+  scale_y_reverse(name = "F1 frequency (Lobanov 2.0)", position = "right", limit=c(3, -2.5)) +
+  theme_bw(base_size=16)
+
+NURSEcompare
+
+NURSEF1_Age_Gender <- lmer(F1norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "NURSE"))
+summary(NURSEF1_Age_Gender)
+
+NURSEF1_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+
+NURSEF2_Age_Gender <- lmer(F2norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "NURSE"))
+summary(NURSEF2_Age_Gender)
+
+NURSEF2_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+
+Extra NURSE plot, showing differences between young male and young female speakers: 
+
+```{r}
+NURSEgender <- ggplot(aes(x = F2norm, y = F1norm, colour = Gender, label = Gender
+), data = filter(allvowels, phoneme == "NURSE", Group2 == "<28")) +
+  geom_point(alpha=0.3) +
+  stat_ellipse(level =  0.95, linewidth = 1.5) +
+  scale_colour_manual(values=c("#1e871e", "#dd5ce4")) +
+  #geom_label(data = TRAPlabels, aes(x = mean_F2Norm, y = mean_F1Norm)) +
+  scale_x_reverse(name = "F2 frequency (Lobanov 2.0)", position = "top", limit=c(3, -3)) +
+  scale_y_reverse(name = "F1 frequency (Lobanov 2.0)", position = "right", limit=c(3, -2.5)) +
+  theme_bw(base_size=16)
+
+NURSEgender
+```
+
+FOOT results (figure X)
+
+```{r}
+FOOTcompare <- ggplot(aes(x = F2norm, y = F1norm, colour = Group2), 
+                       data = filter(allvowels, phoneme == "FOOT", Group2 != "28-50")) +
+  geom_point(alpha=0.3) +
+  stat_ellipse(level =  0.95, linewidth = 1.5) +
+  scale_colour_manual(values=c("#2596be", "#e28743")) +
+  scale_x_reverse(name = "F2 frequency (Lobanov 2.0)", position = "top", limit=c(3, -3)) +
+  scale_y_reverse(name = "F1 frequency (Lobanov 2.0)", position = "right", limit=c(3, -2.5)) +
+  theme_bw(base_size=16)
+
+FOOTcompare
+
+FOOTF1_Age_Gender <- lmer(F1norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "FOOT"))
+summary(FOOTF1_Age_Gender)
+
+FOOTF1_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+
+FOOTF2_Age_Gender <- lmer(F2norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "FOOT"))
+summary(FOOTF2_Age_Gender)
+
+FOOTF2_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+
+LOT results (figure X)
+
+```{r}
+LOTcompare <- ggplot(aes(x = F2norm, y = F1norm, colour = Group2), 
+                       data = filter(allvowels, phoneme == "LOT", Group2 != "28-50")) +
+  geom_point(alpha=0.3) +
+  stat_ellipse(level =  0.95, linewidth = 1.5) +
+  scale_colour_manual(values=c("#2596be", "#e28743")) +
+  scale_x_reverse(name = "F2 frequency (Lobanov 2.0)", position = "top", limit=c(3, -3)) +
+  scale_y_reverse(name = "F1 frequency (Lobanov 2.0)", position = "right", limit=c(3, -2.5)) +
+  theme_bw(base_size=16)
+
+LOTcompare
+
+LOTF1_Age_Gender <- lmer(F1norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "LOT"))
+summary(LOTF1_Age_Gender)
+
+LOTF1_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+
+LOTF2_Age_Gender <- lmer(F2norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "LOT"))
+summary(LOTF2_Age_Gender)
+
+LOTF2_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+
+FLEECE results (figure X)
+
+```{r}
+FLEECEcompare <- ggplot(aes(x = F2norm, y = F1norm, colour = Group2), 
+                       data = filter(allvowels, phoneme == "FLEECE", Group2 != "28-50")) +
+  geom_point(alpha=0.3) +
+  stat_ellipse(level =  0.95, linewidth = 1.5) +
+  scale_colour_manual(values=c("#2596be", "#e28743")) +
+  scale_x_reverse(name = "F2 frequency (Lobanov 2.0)", position = "top", limit=c(3, -3)) +
+  scale_y_reverse(name = "F1 frequency (Lobanov 2.0)", position = "right", limit=c(3, -2.5)) +
+  theme_bw(base_size=16)
+
+FLEECEcompare
+
+FLEECEF1_Age_Gender <- lmer(F1norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "FLEECE"))
+summary(FLEECEF1_Age_Gender)
+
+FLEECEF1_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+
+FLEECEF2_Age_Gender <- lmer(F2norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "FLEECE"))
+summary(FLEECEF2_Age_Gender)
+
+FLEECEF2_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+
+GOOSE results (figure X)
+
+```{r}
+GOOSEcompare <- ggplot(aes(x = F2norm, y = F1norm, colour = Group2), 
+                       data = filter(allvowels, phoneme == "GOOSE", Group2 != "28-50")) +
+  geom_point(alpha=0.3) +
+  stat_ellipse(level =  0.95, linewidth = 1.5) +
+  scale_colour_manual(values=c("#2596be", "#e28743")) +
+  scale_x_reverse(name = "F2 frequency (Lobanov 2.0)", position = "top", limit=c(3, -3)) +
+  scale_y_reverse(name = "F1 frequency (Lobanov 2.0)", position = "right", limit=c(3, -2.5)) +
+  theme_bw(base_size=16)
+
+GOOSEcompare
+
+GOOSEF1_Age_Gender <- lmer(F1norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "GOOSE"))
+summary(GOOSEF1_Age_Gender)
+
+GOOSEF1_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+
+GOOSEF2_Age_Gender <- lmer(F2norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "GOOSE"))
+summary(GOOSEF2_Age_Gender)
+
+GOOSEF2_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+
+THOUGHT results (figure X)
+
+```{r}
+THOUGHTcompare <- ggplot(aes(x = F2norm, y = F1norm, colour = Group2), 
+                       data = filter(allvowels, phoneme == "THOUGHT", Group2 != "28-50")) +
+  geom_point(alpha=0.3) +
+  stat_ellipse(level =  0.95, linewidth = 1.5) +
+  scale_colour_manual(values=c("#2596be", "#e28743")) +
+  scale_x_reverse(name = "F2 frequency (Lobanov 2.0)", position = "top", limit=c(3, -3)) +
+  scale_y_reverse(name = "F1 frequency (Lobanov 2.0)", position = "right", limit=c(3, -2.5)) +
+  theme_bw(base_size=16)
+
+THOUGHTcompare
+
+THOUGHTF1_Age_Gender <- lmer(F1norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "THOUGHT"))
+summary(THOUGHTF1_Age_Gender)
+
+THOUGHTF1_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+
+THOUGHTF2_Age_Gender <- lmer(F2norm~Age*Gender + (1|ID), data = filter(allvowels, phoneme == "THOUGHT"))
+summary(THOUGHTF2_Age_Gender)
+
+THOUGHTF2_Age_Gender %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+Figure 3.14: Predicted vowel movement by year of birth. Code is adapted from this tutorial by Joshua Wilson Black : https://joshua.wilsonblack.nz/posts/visualising-vowel-space-gamms/
+
+```{r}
+vowelsbyage <- read.csv("allvowels_timenorm.csv")
+
+vowelsbyage <- vowelsbyage %>%
+  mutate(
+    phoneme <- as.factor(phoneme))
+
+vowelsbyage <- vowelsbyage %>%
+  mutate(
+    Gender <- as.factor(Gender))
+
+
+vowelsbyage <- vowelsbyage %>%
+  pivot_longer(
+    cols = F1norm:F2norm, 
+    names_to = "Formant", 
+    values_to = "Frequency"
+  )
+
+vowelsbyage <- vowelsbyage %>%
+  group_by(phoneme, Formant) %>%
+  nest()
+
+vowelsbyage <- vowelsbyage %>%
+  mutate(
+    model = map(
+      data,
+      ~ bam(
+        Frequency ~ Gender + 
+          s(Age, k=3),
+        data = .x,
+        method = 'fREML',
+        discrete = TRUE,
+        nthreads = 2
+      )
+    )
+  )
+
+
+to_predict <- list(
+  "Age" = seq(19, 84, 1)) # complete age range in 1yr increments
+
+vowelsbyage <- vowelsbyage %>%
+  mutate(
+    prediction = map(
+      model,
+      ~ get_predictions(model = .x, cond = to_predict, print.summary = FALSE)
+    )
+  )
+
+predictions <- vowelsbyage %>%
+  select(
+    phoneme, Formant, prediction
+  ) %>%
+  unnest(prediction)
+
+predictions <- predictions %>%
+  select(-CI) %>%
+  pivot_wider(
+    names_from = Formant,
+    values_from = fit
+  )
+
+predictions %>%
+  ggplot(
+    aes(
+      x = F2norm,
+      y = F1norm,
+      colour = phoneme
+    )
+  ) +
+  geom_point() +
+  #geom_path(arrow=arrow(length= unit(2, "mm")), linewidth = 1) +
+  # the arrows resulted in the wrong direction being implied (towards increased age)
+  # so were added manually later in the correct direction
+  scale_x_reverse(limit=c(2, -2)) +
+  scale_y_reverse(limit=c(2, -2)) +
+  theme_bw()
+```
+
+Figure X: predicted movements of monophthongs over the course of the interview
+
+```{r}
+vowelsbytime <- read.csv("allvowels_timenorm.csv")
+
+vowelsbytime <- vowelsbytime %>%
+  mutate(
+    phoneme <- as.factor(phoneme))
+
+vowelsbytime <- vowelsbytime %>%
+  mutate(
+    Gender <- as.factor(Gender))
+
+
+vowelsbytime <- vowelsbytime %>%
+  pivot_longer(
+    cols = F1norm:F2norm, 
+    names_to = "Formant", 
+    values_to = "Frequency"
+  )
+
+vowelsbytime <- vowelsbytime %>%
+  group_by(phoneme, Formant) %>%
+  nest()
+
+vowelsbytime <- vowelsbytime %>%
+  mutate(
+    model = map(
+      data,
+      ~ bam(Frequency ~ Gender + 
+          s(Time_norm, k=5),
+        data = .x,
+        method = 'fREML',
+        discrete = TRUE,
+        nthreads = 2
+      )
+    )
+  )
+
+
+
+to_predict <- list(
+  "Time_norm" = seq(0.0, 1.0, 0.0001))
+
+vowelsbytime <- vowelsbytime %>%
+  mutate(
+    prediction = map(
+      model,
+      ~ get_predictions(model = .x, cond = to_predict, print.summary = FALSE)
+    )
+  )
+
+predictions <- vowelsbytime %>%
+  select(
+    phoneme, Formant, prediction
+  ) %>%
+  unnest(prediction)
+
+
+predictions <- predictions %>%
+  select(
+    -CI
+  ) %>%
+  pivot_wider( # Pivot
+    names_from = Formant,
+    values_from = fit
+  )
+
+predictions %>%
+  ggplot(
+    aes(
+      x = F2norm,
+      y = F1norm,
+      colour = phoneme
+    )
+  ) +
+  geom_path(arrow=arrow(length= unit(2, "mm")), linewidth = 1) +
+  scale_x_reverse(limit=c(2, -2)) +
+  scale_y_reverse(limit=c(2, -1.5)) +
+  theme_bw()
+```
+Stats for change in normalised F1 and F2 over the course of the interviews:
+
+```{r}
+forcheck <- read.csv("allvowels.csv")
+library(lme4)
+library(gtsummary)
+
+dressF1accom <- lmer(F1norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "DRESS"))
+
+dressF1accom %>%
+  tbl_regression() %>%
+  add_global_p()
+
+dressF2accom <- lmer(F2norm~Time_norm + (1|ID), data = filter(forcheck, phoneme == "DRESS"))
+
+dressF2accom %>%
+  tbl_regression() %>%
+  add_global_p()
+
+```
+TRAP:
+```{r}
+trapF1accom <- lmer(F1norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "TRAP"))
+
+trapF1accom %>%
+  tbl_regression() %>%
+  add_global_p()
+
+trapF2accom <- lmer(F2norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "TRAP"))
+
+trapF2accom %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+KIT:
+```{r}
+kitF1accom <- lmer(F1norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "KIT"))
+
+kitF1accom %>%
+  tbl_regression() %>%
+  add_global_p()
+
+kitF2accom <- lmer(F2norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "KIT"))
+
+kitF2accom %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+START:
+```{r}
+startF1accom <- lmer(F1norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "START"))
+
+startF1accom %>%
+  tbl_regression() %>%
+  add_global_p()
+
+startF2accom <- lmer(F2norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "START"))
+
+startF2accom %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+STRUT:
+```{r}
+strutF1accom <- lmer(F1norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "STRUT"))
+
+strutF1accom %>%
+  tbl_regression() %>%
+  add_global_p()
+
+strutF2accom <- lmer(F2norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "STRUT"))
+
+strutF2accom %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+NURSE:
+```{r}
+nurseF1accom <- lmer(F1norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "NURSE"))
+
+nurseF1accom %>%
+  tbl_regression() %>%
+  add_global_p()
+
+nurseF2accom <- lmer(F2norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "NURSE"))
+
+nurseF2accom %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+FOOT:
+```{r}
+footF1accom <- lmer(F1norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "FOOT"))
+
+footF1accom %>%
+  tbl_regression() %>%
+  add_global_p()
+
+footF2accom <- lmer(F2norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "FOOT"))
+
+footF2accom %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+LOT:
+```{r}
+lotF1accom <- lmer(F1norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "LOT"))
+
+lotF1accom %>%
+  tbl_regression() %>%
+  add_global_p()
+
+lotF2accom <- lmer(F2norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "LOT"))
+
+lotF2accom %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+FLEECE:
+```{r}
+fleeceF1accom <- lmer(F1norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "FLEECE"))
+
+fleeceF1accom %>%
+  tbl_regression() %>%
+  add_global_p()
+
+fleeceF2accom <- lmer(F2norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "FLEECE"))
+
+fleeceF2accom %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+GOOSE:
+```{r}
+gooseF1accom <- lmer(F1norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "GOOSE"))
+
+gooseF1accom %>%
+  tbl_regression() %>%
+  add_global_p()
+
+gooseF2accom <- lmer(F2norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "GOOSE"))
+
+gooseF2accom %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+THOUGHT:
+```{r}
+thoughtF1accom <- lmer(F1norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "THOUGHT"))
+
+thoughtF1accom %>%
+  tbl_regression() %>%
+  add_global_p()
+
+thoughtF2accom <- lmer(F2norm~Time_norm + (1|ID) + (1|Age), data = filter(forcheck, phoneme == "THOUGHT"))
+
+thoughtF2accom %>%
+  tbl_regression() %>%
+  add_global_p()
+```
+
+
